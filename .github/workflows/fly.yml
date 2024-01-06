@@ -2,7 +2,7 @@ name: Deploy API on Fly
 on:
         push:
                 branches:
-                        - master
+                        - main
 jobs:
         deploy:
                 name: Deploy Flask API
