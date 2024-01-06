@@ -1,5 +1,5 @@
 from flask import Flask, jsonify
-from scraper.scraper_logic import scrape_homepage
+from .scraper.scraper_logic import scrape_homepage
 
 app = Flask(__name__)
 

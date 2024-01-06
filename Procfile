@@ -1,2 +1,1 @@
-# TODO: Modify this Procfile to fit your needs
-web: gunicorn app:app
+web: gunicorn -w 4 api.app:app
