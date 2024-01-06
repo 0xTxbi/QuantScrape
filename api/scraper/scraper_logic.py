@@ -30,13 +30,16 @@ def scrape_homepage():
                     link = element.find(".//a[@class='qNqwJf']").get("href")
                     date = f"{month} {day}"
                     ticker = link.split("/")[2].split(":")[0]
-                    return json.dumps(
+
+                    earningCallResult = json.dumps(
                         {
                             "date": date,
                             "company": company,
                             "ticker": ticker,
                         }
                     )
+
+                    return earningCallResult
             else:
                 return json.dumps({"error": "No events found"})
 
