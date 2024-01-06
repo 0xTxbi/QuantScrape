@@ -1,5 +1,6 @@
 import requests
 from lxml import etree
+import json
 
 
 def scrape_homepage():
@@ -27,15 +28,22 @@ def scrape_homepage():
                     day = element.find(".//div[@class='Z1cdGd']").text
                     company = element.find(".//a[@class='qNqwJf']").text
                     link = element.find(".//a[@class='qNqwJf']").get("href")
+                    date = f"{month} {day}"
                     ticker = link.split("/")[2].split(":")[0]
-                    print(f"{month} {day}, {company}, {ticker}")
+                    return json.dumps(
+                        {
+                            "date": date,
+                            "company": company,
+                            "ticker": ticker,
+                        }
+                    )
             else:
-                print("No events found")
+                return json.dumps({"error": "No events found"})
 
         else:
-            return "Failed to fetch events calendar"
+            return json.dumps({"error": "Failed to fetch events calendar"})
     except requests.RequestException as e:
-        return f"Error during request: {e}"
+        return json.dumps({"error": f"Error during request: {e}"})
 
 
 # test scraper logic
