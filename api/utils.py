@@ -9,9 +9,9 @@ load_dotenv()
 
 
 redisStore = redis.Redis(
-    host=os.getenv("REDIS_HOST", "localhost"),
-    port=int(os.getenv("REDIS_PORT", 6379)),
-    password=os.getenv("REDIS_PASSWORD", ""),
+    host=os.getenv("REDIS_HOST"),
+    port=int(os.getenv("REDIS_PORT")),
+    password=os.getenv("REDIS_PASSWORD"),
     ssl=True,
 )
 
@@ -63,13 +63,13 @@ def get_cached_result(key):
 
     Returns:
     str: If the connection to the Redis server fails, returns a JSON string indicating that it couldn't connect to the Redis server.
-    str: If the key does not exist in the cache, returns a JSON string indicating that the key was not found.
+    str: If the key does not exist in the cache, returns None.
     str: If any other exception occurs, returns a JSON string with a message indicating that an unexpected error occurred.
     """
     try:
         value = redisStore.get(key)
         if value is None:
-            return json.dumps({"error": f"Key '{key}' not found in the cache"})
+            return None
         return json.loads(value)
     except redis.exceptions.ConnectionError:
         return json.dumps({"error": "Error connecting to the Redis database"})
