@@ -1,9 +1,19 @@
 import redis
+from dotenv import load_dotenv
+import os
 import json
 from datetime import datetime, timedelta
 import pytz
 
-redisStore = redis.Redis(host="localhost", port=6379, db=0, decode_responses=True)
+load_dotenv()
+
+
+redisStore = redis.Redis(
+    host=os.getenv("REDIS_HOST", "localhost"),
+    port=int(os.getenv("REDIS_PORT", 6379)),
+    password=os.getenv("REDIS_PASSWORD", ""),
+    ssl=True,
+)
 
 
 # cache result
@@ -38,6 +48,7 @@ def cache_result(key, value):
         redisStore.set(key, value, ex=key_expiration_time)
         return json.dumps({"success": f"Value '{value}' stored with key '{key}'"})
     except redis.exceptions.ConnectionError:
+        print(redis.exceptions.ConnectionError)
         return json.dumps({"error": "Error connecting to the Redis database"})
     except Exception as e:
         return json.dumps({"error": f"An unexpected error occured: {e}"})

@@ -13,6 +13,7 @@ gevent = "*"
 redis = "*"
 pytz = "*"
 async-timeout = "*"
+python-dotenv = "*"
 
 [dev-packages]
 
