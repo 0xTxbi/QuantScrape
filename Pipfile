@@ -14,6 +14,7 @@ redis = "*"
 pytz = "*"
 async-timeout = "*"
 python-dotenv = "*"
+flask-cors = "*"
 
 [dev-packages]
 

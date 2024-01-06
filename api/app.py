@@ -1,8 +1,11 @@
 from flask import Flask, jsonify
+from flask_cors import CORS
 from .scraper.scraper_logic import scrape_homepage
 from .utils import cache_result, get_cached_result
 
 app = Flask(__name__)
+# temp – enable cors for all routes
+CORS(app)
 
 
 @app.route("/upcoming-earnings", methods=["GET"])
