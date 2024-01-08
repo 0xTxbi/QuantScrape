@@ -13,18 +13,17 @@ CORS(app)
 def get_market_gainers():
     try:
         # first check if we have the value in cache
-        # cached_market_gainers = get_cached_result("marketGainers")
-        # print(cached_market_gainers)
+        cached_market_gainers = get_cached_result("marketGainers")
 
-        # if cached_market_gainers:
-        #     # if data exists in cache, return it
-        #     return cached_market_gainers
+        if cached_market_gainers:
+            # if data exists in cache, return it
+            return jsonify({"market_gainers": f"{cached_market_gainers}"})
 
         # else, execute the scrape function
         market_gainers = scrape_top_gainers()
 
         # store the scraped data in the cache
-        # cache_result("marketGainers", market_gainers)
+        cache_result("marketGainers", market_gainers)
 
         return jsonify({"market_gainers": f"{market_gainers}"})
     except Exception as e:

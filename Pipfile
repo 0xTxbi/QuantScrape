@@ -21,6 +21,7 @@ html2text = "*"
 tqdm = "*"
 openai = "*"
 langchain-openai = "*"
+exceptiongroup = "*"
 
 [dev-packages]
 

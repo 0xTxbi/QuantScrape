@@ -7,15 +7,7 @@ import json
 load_dotenv()
 
 
-redisStore = redis.Redis(
-    host=os.getenv("REDIS_HOST"),
-    port=int(os.getenv("REDIS_PORT")),
-    password=os.getenv("REDIS_PASSWORD"),
-    ssl=True,
-)
-
-
-redis.Redis(host="localhost", port=6379, db=0, decode_responses=True)
+redisStore = redis.Redis(host="localhost", port=6379, db=0, decode_responses=True)
 
 
 # cache result
@@ -33,7 +25,7 @@ def cache_result(key, value):
     """
     try:
         # set the cache key's expiration time
-        redisStore.set(key, value, ex=86400)
+        redisStore.set(key, value, ex=18000)
         print(value)
         return json.dumps({"success": f"Value '{value}' stored with key '{key}'"})
     except redis.exceptions.ConnectionError:

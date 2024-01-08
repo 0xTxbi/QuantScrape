@@ -9,7 +9,7 @@ def setup_language_model():
     llm = Together(
         model=os.getenv("LLM_PROVIDER_MODEL"),
         temperature=0.5,
-        max_tokens=300,
+        max_tokens=1500,
         top_k=1,
         together_api_key=os.getenv("LLM_PROVIDER_API_KEY"),
     )
