@@ -18,8 +18,8 @@ load_dotenv()
 # llm
 llm = Together(
     model=os.getenv("LLM_PROVIDER_MODEL"),
-    temperature=0.7,
-    max_tokens=500,
+    temperature=0,
+    max_tokens=300,
     top_k=1,
     together_api_key=os.getenv("LLM_PROVIDER_API_KEY"),
 )
@@ -64,9 +64,8 @@ def scrape_top_gainers():
     content_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=0)
     splitted_content = content_splitter.split_documents(transformed_request)
 
+    # extract the string
     splitted_content_str = splitted_content[0].page_content
-
-    print(splitted_content_str)
 
     # Call prompt_and_llm with splitted_content_str as part of the template
     output = prompt_and_llm.invoke(
@@ -76,7 +75,7 @@ def scrape_top_gainers():
         }
     )
 
-    return output
+    return json.dumps(output)
 
 
 def scrape_homepage():
