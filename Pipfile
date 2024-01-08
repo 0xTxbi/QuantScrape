@@ -15,6 +15,12 @@ pytz = "*"
 async-timeout = "*"
 python-dotenv = "*"
 flask-cors = "*"
+langchain = "*"
+playwright = "*"
+html2text = "*"
+tqdm = "*"
+openai = "*"
+langchain-openai = "*"
 
 [dev-packages]
 
