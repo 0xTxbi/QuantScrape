@@ -1,16 +1,17 @@
 # QuantScrape
 
-QuantScrape is my Python-based web scraping API designed for extracting
-financial data from Google Finance. This project aims to provide a streamlined
-and efficient way to gather essential financial information, supporting
-quantitative analysis, modeling, and research.
+QuantScrape is my AI-enhanced Python-based web scraping API crafted for
+extracting financial data.
+
+This project employs a streamlined and efficient way to gather essential
+financial information. It caters to quantitative analysis, modeling, and
+research needs.
 
 ## Features
 
 - Extracts real-time stock prices, market indices, and other relevant financial
   data.
 - Designed for ease of integration into quantitative finance applications.
-- Utilizes web scraping techniques to fetch data from Google Finance.
 
 ## License
 
