@@ -2,13 +2,19 @@ import redis
 from dotenv import load_dotenv
 import os
 import json
-from datetime import datetime, timedelta
-import pytz
+
 
 load_dotenv()
 
 
-redisStore = redis.Redis(host="localhost", port=6379, db=0, decode_responses=True)
+redisStore = redis.Redis(
+    host=os.getenv("REDIS_HOST"),
+    port=int(os.getenv("REDIS_PORT")),
+    password=os.getenv("REDIS_PASSWORD"),
+    ssl=True,
+)
+
+redis.Redis(host="localhost", port=6379, db=0, decode_responses=True)
 
 
 # cache result
@@ -25,22 +31,9 @@ def cache_result(key, value):
     str: If any other exception occurs, returns a JSON string with a message indicating that an unexpected error occurred.
     """
     try:
-        # get current time
-        current_time = datetime.now(pytz.timezone("US/Eastern"))
-
-        # calculate the time until the next 7am
-        if current_time >= 7:
-            # if it's past 7am today, wait till tomorrow
-            delta = timedelta(days=1) - (current_time - current_time.replace(hour=7))
-        else:
-            # otherwise, wait until today
-            delta = current_time.replace(hour=7) - current_time
-
-        # Convert the timedelta to seconds
-        key_expiration_time = int(delta.total_seconds())
-
         # set the cache key's expiration time
-        redisStore.set(key, value, ex=key_expiration_time)
+        redisStore.set(key, value, ex=86400)
+        print(value)
         return json.dumps({"success": f"Value '{value}' stored with key '{key}'"})
     except redis.exceptions.ConnectionError:
         print(redis.exceptions.ConnectionError)
@@ -49,6 +42,7 @@ def cache_result(key, value):
         return json.dumps({"error": f"An unexpected error occured: {e}"})
 
 
+# retrieve cached result
 def get_cached_result(key):
     """
     Retrieves a value from the Redis cache with a given key.
@@ -65,8 +59,28 @@ def get_cached_result(key):
         value = redisStore.get(key)
         if value is None:
             return None
+        print(f"retrieved: {value}")
         return json.loads(value)
     except redis.exceptions.ConnectionError:
         return json.dumps({"error": "Error connecting to the Redis database"})
     except Exception as e:
         return json.dumps({"error": f"An unexpected error occured: {e}"})
+
+
+# delete cached_result
+def delete_cached_result(key):
+    """
+    Deletes a value from the Redis cache with a given key.
+
+    Parameters:
+    key (str): The key associated with the value to delete.
+
+    Returns:
+    bool: True if the key was deleted, False if the key did not exist.
+    """
+    try:
+        result = redisStore.delete(key)
+        return result > 0
+    except Exception as e:
+        print(f"An error occurred while deleting the cached item'{key}': {e}")
+        return False
