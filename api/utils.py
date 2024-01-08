@@ -7,12 +7,8 @@ import json
 load_dotenv()
 
 
-redisStore = redis.Redis(
-    host=os.getenv("REDIS_HOST"),
-    port=int(os.getenv("REDIS_PORT")),
-    password=os.getenv("REDIS_PASSWORD"),
-    ssl=True,
-)
+redisStore = redis.Redis(host="localhost", port=6379, db=0, decode_responses=True)
+
 
 redis.Redis(host="localhost", port=6379, db=0, decode_responses=True)
 
