@@ -3,6 +3,7 @@ from flask_cors import CORS
 from .scraper.scraper_logic import scrape_homepage, scrape_top_gainers
 from .utils import cache_result, get_cached_result
 
+
 app = Flask(__name__)
 # temp – enable cors for all routes
 CORS(app)
@@ -25,7 +26,7 @@ def get_market_gainers():
         # store the scraped data in the cache
         cache_result("marketGainers", market_gainers)
 
-        return jsonify({"market_gainers": f"{market_gainers}"})
+        return jsonify({"market_gainers": market_gainers})
     except Exception as e:
         return jsonify({"error": f"An error was encountered: {e}"})
 
