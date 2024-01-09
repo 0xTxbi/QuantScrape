@@ -17,7 +17,7 @@ setup_environment()
 llm = setup_language_model()
 
 
-# defining the structure of parsed data
+# top market gainers data structure
 class TopGainers(BaseModel):
     symbol: str
     company: str
@@ -26,14 +26,62 @@ class TopGainers(BaseModel):
     percent_change: str
 
 
+# stock financials data structure
+class StockFinancials(BaseModel):
+    symbol: str
+    company: str
+    current_price_value: float
+    current_price_pre_market: float
+    current_price_change_percentage: float
+    comparable_stocks: dict[str, float]
+
+
 # parsing data
 parsedMarketGainers = parse_data(TopGainers)
+parsedStockFinancials = parse_data(StockFinancials)
+
+
+#  function to scrape stock financials
+def scrape_stock_financials(ticker=str, market=str):
+    # defining the URL to scrape
+    url = f"https://www.google.com/finance/quote/{ticker}:{market}"
+    print(url)
+    loader = AsyncHtmlLoader(url, verify_ssl=False)
+    pages_html = loader.load()
+    bs_transformer = BeautifulSoupTransformer()
+    transformed_request = bs_transformer.transform_documents(
+        pages_html, ["scripts", "style", "meta", "link"], ["div"]
+    )
+
+    print(f"Extracting {ticker} financials.....")
+
+    # grab the first 1500 tokens of the page
+
+    content_splitter = RecursiveCharacterTextSplitter(chunk_size=3000, chunk_overlap=0)
+
+    splitted_content = content_splitter.split_documents(transformed_request)
+
+    # extract the string
+    splitted_content_str = splitted_content[0].page_content
+
+    # print(splitted_content_str)
+
+    # Call prompt_and_llm with splitted_content_str as part of the template
+    output = prompt_gen(
+        "this is the company's financial info",
+        splitted_content_str,
+        parsedStockFinancials,
+        llm,
+    )
+
+    return output
 
 
 # function to scrape top gainers
 def scrape_top_gainers():
     # defining the URL to scrape
     url = "https://www.google.com/finance/markets/gainers"
+    print(url)
     # creating an instance of AsyncHtmlLoader
     loader = AsyncHtmlLoader(url, verify_ssl=False)
     # loading the HTML of the page
@@ -46,7 +94,7 @@ def scrape_top_gainers():
         pages_html, ["scripts", "style", "meta", "link"], ["div"]
     )
 
-    print("Extracting info.....")
+    print("Extracting top gainers info.....")
 
     # splitting the content into chunks
     content_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=0)
@@ -57,16 +105,14 @@ def scrape_top_gainers():
 
     # generating the prompt
     output = prompt_gen(
-        "extract the first 5 top gaining stocks from it and organise it in key value pairs.",
+        "these are top gaining stocks",
         splitted_content_str,
         parsedMarketGainers,
         llm,
     )
 
-    print(output)
-
     # returning the output as a JSON object
-    return json.loads(output)
+    return output
 
 
 # function to scrape homepage
@@ -124,5 +170,5 @@ def scrape_homepage():
 # testing the scraper logic
 if __name__ == "__main__":
     # testing the intelligent scraping
-    result = scrape_top_gainers()
-    print(result)
+    result1 = scrape_top_gainers()
+    result = scrape_stock_financials("aapl", "nasdaq")

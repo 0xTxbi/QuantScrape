@@ -1,12 +1,28 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
-from .scraper.scraper_logic import scrape_homepage, scrape_top_gainers
+from .scraper.scraper_logic import (
+    scrape_homepage,
+    scrape_top_gainers,
+    scrape_stock_financials,
+)
 from .utils import cache_result, get_cached_result
 
 
 app = Flask(__name__)
 # temp – enable cors for all routes
 CORS(app)
+
+
+# retrieve stock's financials
+@app.route("/stock/<ticker>:<market>", methods=["GET"])
+def get_stock_financials(ticker, market):
+    try:
+        # execute the scrape function
+        stock_financials = scrape_stock_financials(ticker, market)
+
+        return jsonify({"stock_info": stock_financials})
+    except Exception as e:
+        return jsonify({"error": f"An error was encountered: {e}"})
 
 
 # retrieve market gainers
