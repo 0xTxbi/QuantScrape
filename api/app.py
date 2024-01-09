@@ -14,11 +14,11 @@ CORS(app)
 
 
 # retrieve stock's financials
-@app.route("/stock/<ticker>:<market>", methods=["GET"])
-def get_stock_financials(ticker, market):
+@app.route("/stock/<ticker>", methods=["GET"])
+def get_stock_financials(ticker):
     try:
         # execute the scrape function
-        stock_financials = scrape_stock_financials(ticker, market)
+        stock_financials = scrape_stock_financials(ticker)
 
         return jsonify({"stock_info": stock_financials})
     except Exception as e:

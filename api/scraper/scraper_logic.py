@@ -3,7 +3,10 @@ import requests
 from lxml import etree
 import json
 from langchain_community.document_loaders import AsyncHtmlLoader
-from langchain_community.document_transformers import BeautifulSoupTransformer
+from langchain_community.document_transformers import (
+    BeautifulSoupTransformer,
+    Html2TextTransformer,
+)
 from langchain_core.pydantic_v1 import BaseModel
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
@@ -27,52 +30,67 @@ class TopGainers(BaseModel):
 
 
 # stock financials data structure
-class StockFinancials(BaseModel):
+class StockBasic(BaseModel):
     symbol: str
     company: str
-    current_price_value: float
-    current_price_pre_market: float
-    current_price_change_percentage: float
-    comparable_stocks: dict[str, float]
+    current_price: float
+    # represents the previous close value
+    previous_close: float
+    # represents the open value
+    open_price: float
+    # represents the day's range value
+    days_range: str
+    # represents the 52 week range value
+    week_range_52: str
+    # represents the volume value
+    volume: str
+    # represents the average volume value
+    avg_volume: str
+    # represents the market cap value
+    market_cap: str
+    # represents the pe ratio (TTM) value (optional, as it might be missing)
+    pe_ratio_ttm: float
+    # represents the eps (TTM) value (optional, as it might be missing)
+    eps_ttm: float
+    # represents the earnings date value
+    earnings_date: str
 
 
 # parsing data
 parsedMarketGainers = parse_data(TopGainers)
-parsedStockFinancials = parse_data(StockFinancials)
+parsedStockFinancials = parse_data(StockBasic)
 
 
 #  function to scrape stock financials
-def scrape_stock_financials(ticker=str, market=str):
+def scrape_stock_financials(ticker=str):
     # defining the URL to scrape
-    url = f"https://www.google.com/finance/quote/{ticker}:{market}"
+    url = f"https://finance.yahoo.com/quote/{ticker}"
     print(url)
     loader = AsyncHtmlLoader(url, verify_ssl=False)
     pages_html = loader.load()
-    bs_transformer = BeautifulSoupTransformer()
-    transformed_request = bs_transformer.transform_documents(
-        pages_html, ["scripts", "style", "meta", "link"], ["div"]
-    )
+    # instantiate html transformer
+    html2text = Html2TextTransformer()
+    transformed_request = html2text.transform_documents(pages_html)
 
     print(f"Extracting {ticker} financials.....")
 
     # grab the first 1500 tokens of the page
-
-    content_splitter = RecursiveCharacterTextSplitter(chunk_size=3000, chunk_overlap=0)
+    content_splitter = RecursiveCharacterTextSplitter(chunk_size=5000, chunk_overlap=0)
 
     splitted_content = content_splitter.split_documents(transformed_request)
 
-    # extract the string
-    splitted_content_str = splitted_content[0].page_content
-
-    # print(splitted_content_str)
+    # # extract the string
+    splitted_content_str = splitted_content[0].page_content[750:2000]
 
     # Call prompt_and_llm with splitted_content_str as part of the template
     output = prompt_gen(
-        "this is the company's financial info",
+        "this is the company's basic financial info",
         splitted_content_str,
         parsedStockFinancials,
         llm,
     )
+
+    print(output)
 
     return output
 
@@ -169,6 +187,5 @@ def scrape_homepage():
 
 # testing the scraper logic
 if __name__ == "__main__":
-    # testing the intelligent scraping
-    result1 = scrape_top_gainers()
-    result = scrape_stock_financials("aapl", "nasdaq")
+    # testing the scraping functions
+    result = scrape_stock_financials("lmt")
