@@ -29,8 +29,21 @@ class TopGainers(BaseModel):
     percent_change: str
 
 
-# stock financials data structure
-class StockBasic(BaseModel):
+# stock historical data structure
+class StockFinancials(BaseModel):
+    class StockData(BaseModel):
+        date: str
+        open_price: float
+        high_price: float
+        low_price: float
+        close_price: float
+        volume: str
+
+    data: list[StockData]
+
+
+# stock quote data structure
+class StockQuote(BaseModel):
     symbol: str
     company: str
     current_price: float
@@ -58,11 +71,47 @@ class StockBasic(BaseModel):
 
 # parsing data
 parsedMarketGainers = parse_data(TopGainers)
-parsedStockFinancials = parse_data(StockBasic)
+parsedStockQuote = parse_data(StockQuote)
+parsedStockHistoricalData = parse_data(StockFinancials)
 
 
-#  function to scrape stock financials
-def scrape_stock_financials(ticker=str):
+# function to scrape stock historical data
+def scrape_stock_historical_data(ticker=str):
+    # url to scrape
+    url = f"https://finance.yahoo.com/quote/{ticker}/history?interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true"
+
+    print(url)
+    loader = AsyncHtmlLoader(url, verify_ssl=False)
+    pages_html = loader.load()
+    # instantiate html transformer
+    html2text = Html2TextTransformer()
+    transformed_request = html2text.transform_documents(pages_html)
+
+    print(f"Extracting {ticker}'s historical data.....")
+
+    # grab the first 4000 tokens of the page
+    content_splitter = RecursiveCharacterTextSplitter(chunk_size=20000, chunk_overlap=0)
+
+    splitted_content = content_splitter.split_documents(transformed_request)
+
+    # extract the string
+    splitted_content_str = splitted_content[0].page_content[750:4000]
+
+    # Call prompt_and_llm with splitted_content_str as part of the template
+    output = prompt_gen(
+        "this is the company's stock historical data",
+        splitted_content_str,
+        parsedStockHistoricalData,
+        llm,
+    )
+
+    print(output)
+
+    return output
+
+
+#  function to scrape stock quote details
+def scrape_stock_quote(ticker=str):
     # defining the URL to scrape
     url = f"https://finance.yahoo.com/quote/{ticker}"
     print(url)
@@ -79,14 +128,14 @@ def scrape_stock_financials(ticker=str):
 
     splitted_content = content_splitter.split_documents(transformed_request)
 
-    # # extract the string
+    # extract the string
     splitted_content_str = splitted_content[0].page_content[750:2000]
 
     # Call prompt_and_llm with splitted_content_str as part of the template
     output = prompt_gen(
         "this is the company's basic financial info",
         splitted_content_str,
-        parsedStockFinancials,
+        parsedStockQuote,
         llm,
     )
 
@@ -188,4 +237,4 @@ def scrape_homepage():
 # testing the scraper logic
 if __name__ == "__main__":
     # testing the scraping functions
-    result = scrape_stock_financials("lmt")
+    result = scrape_stock_historical_data("lmt")

@@ -3,7 +3,8 @@ from flask_cors import CORS
 from .scraper.scraper_logic import (
     scrape_homepage,
     scrape_top_gainers,
-    scrape_stock_financials,
+    scrape_stock_quote,
+    scrape_stock_historical_data,
 )
 from .utils import cache_result, get_cached_result
 
@@ -13,12 +14,24 @@ app = Flask(__name__)
 CORS(app)
 
 
+# retrieve stock's historical data
+@app.route("/historical-data/<ticker>", methods=["GET"])
+def get_stock_historical_data(ticker):
+    try:
+        # execute the scrape function
+        stock_historical_data = scrape_stock_historical_data(ticker)
+
+        return jsonify({"stock_historical_data": stock_historical_data})
+    except Exception as e:
+        return jsonify({"error": f"An error was encountered: {e}"})
+
+
 # retrieve stock's financials
-@app.route("/stock/<ticker>", methods=["GET"])
+@app.route("/quote/<ticker>", methods=["GET"])
 def get_stock_financials(ticker):
     try:
         # execute the scrape function
-        stock_financials = scrape_stock_financials(ticker)
+        stock_financials = scrape_stock_quote(ticker)
 
         return jsonify({"stock_info": stock_financials})
     except Exception as e:
