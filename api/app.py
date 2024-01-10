@@ -21,6 +21,7 @@ def get_stock_historical_data(ticker):
         # execute the scrape function
         stock_historical_data = scrape_stock_historical_data(ticker)
 
+        print(stock_historical_data)
         return jsonify({"stock_historical_data": stock_historical_data})
     except Exception as e:
         return jsonify({"error": f"An error was encountered: {e}"})
@@ -31,9 +32,10 @@ def get_stock_historical_data(ticker):
 def get_stock_financials(ticker):
     try:
         # execute the scrape function
-        stock_financials = scrape_stock_quote(ticker)
+        stock_quote = scrape_stock_quote(ticker)
 
-        return jsonify({"stock_info": stock_financials})
+        print(stock_quote)
+        return jsonify({"stock_info": stock_quote})
     except Exception as e:
         return jsonify({"error": f"An error was encountered: {e}"})
 

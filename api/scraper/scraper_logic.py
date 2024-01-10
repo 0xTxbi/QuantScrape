@@ -121,7 +121,7 @@ def scrape_stock_quote(ticker=str):
     html2text = Html2TextTransformer()
     transformed_request = html2text.transform_documents(pages_html)
 
-    print(f"Extracting {ticker} financials.....")
+    print(f"Extracting {ticker}'s quote.....")
 
     # grab the first 1500 tokens of the page
     content_splitter = RecursiveCharacterTextSplitter(chunk_size=5000, chunk_overlap=0)
