@@ -14,6 +14,22 @@ app = Flask(__name__)
 CORS(app)
 
 
+# welcome agents
+@app.route("/", methods=["GET"])
+def index():
+    ascii_art = """
+    Welcome to QuantScrape!
+     __    __     _                            
+    / / /\ \ \___| | ___ ___  _ __ ___   ___  
+    \ \/  \/ / _ \ |/ __/ _ \| '_ ` _ \ / _ \ 
+     \  /\  /  __/ | (_| (_) | | | | | |  __/ 
+      \/  \/ \___|_|\___\___/|_| |_| |_|\___| 
+                                              
+    Harness the power of AI for financial data scraping.
+    """
+    return "<pre>" + ascii_art + "</pre>"
+
+
 # retrieve stock's historical data
 @app.route("/historical-data/<ticker>", methods=["GET"])
 def get_stock_historical_data(ticker):
